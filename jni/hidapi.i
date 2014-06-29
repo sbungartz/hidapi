@@ -1,6 +1,7 @@
 %module hidapi
 %{
 #include "../hidapi/hidapi.h"
+#include "string_adapter.h"
 %}
 
 %include "typemaps.i"
@@ -11,4 +12,7 @@
 %apply signed char[] {const unsigned char*};
 %apply signed char[] {unsigned char*};
 
+%include "std_wstring.i"
+
 %include "../hidapi/hidapi.h"
+%include "string_adapter.h"
