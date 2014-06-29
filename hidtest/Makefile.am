@@ -8,7 +8,7 @@ hidtest_hidraw_SOURCES = hidtest.cpp
 hidtest_hidraw_LDADD = $(top_builddir)/linux/libhidapi-hidraw.la
 
 hidtest_libusb_SOURCES = hidtest.cpp
-hidtest_libusb_LDADD = $(top_builddir)/libusb/libhidapi-libusb.la
+hidtest_libusb_LDADD = $(top_builddir)/libusb/libhidapi-libusb.la $(LIBS_LIBUSB)
 else
 
 # Other OS's
