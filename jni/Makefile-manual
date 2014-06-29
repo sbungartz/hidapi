@@ -1,6 +1,15 @@
 JNI_INCLUDES = -I/usr/lib/jvm/java-1.7.0-openjdk-amd64/include/ -I/usr/lib/jvm/java-1.7.0-openjdk-amd64/include/linux
 
-jniapi: libhidapi-jni-api.o javabin
+jniapi: hidapi_wrap.o hidapiswig.jar
+
+jniapi-linux-hidraw: jniapi libhidapi-linux-raw.so
+
+libhidapi-linux-raw.so: hidapi_wrap.o
+	cd ../linux
+	make -f Makefile-manual clean
+	make -f Makefile-manual
+	cd ../jni
+	ld -G ../linux/hid.o hidapi_wrap.o -ludev -o libhidapi-linux-raw.so
 
 swig:
 	rm -rf javasrc
@@ -10,15 +19,16 @@ swig:
 hidapi_wrap.o: swig
 	g++ -fpic $(JNI_INCLUDES) -c hidapi_wrap.cxx
 
-libhidapi-jni-api.o: hidapi_wrap.o
-	ld -G hidapi_wrap.o -ludev -o libhidapi-jni-api.o
-
 javabin:
 	rm -rf javabin
 	mkdir -p javabin
 	javac -d javabin javasrc/de/sbungartz/hidapi/*.java
 
+hidapiswig.jar: javabin
+	jar cf0 hidapiswig.jar -C javabin .
+
 clean:
 	rm -rf javasrc
 	rm -rf javabin
-	rm -f hidapi_wrap.cxx hidapi_wrap.o libhidapi-jni-api.o
+	rm -f hidapi_wrap.cxx hidapi_wrap.o hidapiswig.jar
+	rm -f libhidapi-linux-raw.so

@@ -2,3 +2,5 @@ javabin/
 javasrc/
 *.cxx
 *.o
+*.so
+*.jar
