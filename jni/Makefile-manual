@@ -1,0 +1,24 @@
+JNI_INCLUDES = -I/usr/lib/jvm/java-1.7.0-openjdk-amd64/include/ -I/usr/lib/jvm/java-1.7.0-openjdk-amd64/include/linux
+
+jniapi: libhidapi-jni-api.o javabin
+
+swig:
+	rm -rf javasrc
+	mkdir -p javasrc/de/sbungartz/hidapi
+	swig -c++ -java -package de.sbungartz.hidapi -outdir javasrc/de/sbungartz/hidapi hidapi.i
+
+hidapi_wrap.o: swig
+	g++ -fpic $(JNI_INCLUDES) -c hidapi_wrap.cxx
+
+libhidapi-jni-api.o: hidapi_wrap.o
+	ld -G hidapi_wrap.o -ludev -o libhidapi-jni-api.o
+
+javabin:
+	rm -rf javabin
+	mkdir -p javabin
+	javac -d javabin javasrc/de/sbungartz/hidapi/*.java
+
+clean:
+	rm -rf javasrc
+	rm -rf javabin
+	rm -f hidapi_wrap.cxx hidapi_wrap.o libhidapi-jni-api.o
