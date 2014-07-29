@@ -1,10 +1,12 @@
-JNI_INCLUDES = -I/usr/lib/jvm/java-1.7.0-openjdk-amd64/include/ -I/usr/lib/jvm/java-1.7.0-openjdk-amd64/include/linux
+JNI_INCLUDES = -I "C:\Program Files\Java\jdk1.7.0_51\include" -I "C:\Program Files\Java\jdk1.7.0_51\include\win32"
 
-jniapi: hidapi_wrap.o hidapiswig.jar
+jniapi: hidapi_wrap.o hidapi_wrap_x64.o hidapiswig.jar
 
 jniapi-linux: jniapi-linux-hidraw jniapi-linux-libusb
 jniapi-linux-hidraw: jniapi libhidapi-linux-raw.so
 jniapi-linux-libusb: jniapi libhidapi-linux-libusb.so
+
+jniapi-windows: libhidapi-win-x64.dll
 
 libhidapi-linux-raw.so: hidapi_wrap.o
 	$(MAKE) -C ../linux -f Makefile-manual clean
@@ -15,6 +17,10 @@ libhidapi-linux-libusb.so: hidapi_wrap.o
 	$(MAKE) -C ../libusb -f Makefile-manual clean
 	$(MAKE) -C ../libusb -f Makefile-manual
 	ld -G ../libusb/hid.o hidapi_wrap.o -ludev -lusb-1.0 -o libhidapi-linux-libusb.so
+	
+libhidapi-win-x64.dll: hidapi_wrap_x64.o
+	$(MAKE) -C ../windows -f Makefile-manual hid_x64.o
+	x86_64-w64-mingw32-g++ -shared -m64 -g ../windows/hid_x64.o hidapi_wrap_x64.o -lsetupapi -o libhidapi-win-x64.dll
 
 swig:
 	rm -rf javasrc
@@ -23,6 +29,8 @@ swig:
 
 hidapi_wrap.o: swig
 	g++ -fpic $(JNI_INCLUDES) -c hidapi_wrap.cxx
+hidapi_wrap_x64.o : swig
+	x86_64-w64-mingw32-g++ -fpic -m64 $(JNI_INCLUDES) -c hidapi_wrap.cxx -o hidapi_wrap_x64.o
 
 javabin:
 	rm -rf javabin

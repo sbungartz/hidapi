@@ -28,6 +28,9 @@ $(COBJS): %.o: %.c
 
 $(CPPOBJS): %.o: %.cpp
 	$(CXX) $(CFLAGS) $< -o $@
+	
+hid_x64.o: hid.c
+	x86_64-w64-mingw32-gcc -m64 $(CFLAGS) hid.c -o $@
 
 clean:
 	rm *.o ../hidtest/*.o hidtest.exe
